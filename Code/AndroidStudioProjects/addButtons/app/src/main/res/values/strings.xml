@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">addButtons</string>
+    <string name="resolution">手机分辨率为:</string>
+    <string name="pressme">按我获分辨率</string>
+</resources>
