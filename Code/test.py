@@ -170,3 +170,66 @@
 # get_images(info)
 
 # #————————————————————————————————————————————————————————————————
+
+
+# #使用BeautifulSoup获取网页元素
+
+# import urllib
+
+# from bs4 import BeautifulSoup
+
+# #BeautifulSoup : 网页解析第三方库
+
+# def get_content(url):
+#     """
+#     .doc
+#     """
+#     html = urllib.urlopen(url)
+#     content = html.read()
+#     html.close()
+
+#     return content
+
+# info = get_content("http://tieba.baidu.com/p/2772656630")
+
+# def get_images(info):
+#     """.doc"""
+
+#     soup = BeautifulSoup(info,"lxml")
+
+#     all_img = soup.find_all('img',class_="BDE_Image")
+
+#     x = 1
+#     for img_url in all_img:
+#     	img_path = './image/%s.jpg' % x
+#         print img_url['src']
+#     	urllib.urlretrieve(img_url['src'],img_path)
+#         x += 1
+
+#     return all_img
+
+# get_images(info)
+
+# #————————————————————————————————————————————————————————————————
+
+#解决python程序的编码问题
+
+#import sys
+
+
+#print sys.getdefaultencoding()
+#print "我是中文"
+"""
+python 内部所有编码是Unicode
+中文是gbk
+正常处理使用utf-8
+乱码->unicode中转码->我们需要的编码格式
+
+decode() -> encode()  ->我们需要的编码
+"""
+
+content.decode('gbk').encode('utf-8')
+
+if isinstance(content,unicode):  #判断是否是unicode编码
+
+
