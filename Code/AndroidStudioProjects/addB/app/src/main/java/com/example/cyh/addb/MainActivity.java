@@ -1,15 +1,14 @@
-package com.example.cyh.addbuttons;
+package com.example.cyh.addb;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -29,14 +28,14 @@ public class MainActivity extends Activity {
 
         dm = new DisplayMetrics();   //
         getWindowManager().getDefaultDisplay().getMetrics(dm);
+
         final int width = dm.widthPixels;
         final int height = dm.heightPixels;
 
-        RelativeLayout layout = new RelativeLayout(this);
+        RelativeLayout lay = new  RelativeLayout(this);
 
 
         ImageButton Btn[] = new ImageButton[2];
-        int j = -1;
 
         for (int i=0; i< 2; i++) {
             Btn[i]=new ImageButton(this);
@@ -48,31 +47,23 @@ public class MainActivity extends Activity {
                 Btn[i].setImageResource(R.drawable.circle_white);
 
             Btn[i].setScaleType(ImageView.ScaleType.CENTER );
-            RelativeLayout.LayoutParams btParams = new RelativeLayout.LayoutParams(55,64);
-
-            //设置按钮的宽度和高度
-            if (i%4 == 0) {
-                j++;
-            }
-            
-           // btParams.leftMargin = 10+ ((width-50)/4+10)*(i%4); //横坐标定位
-            //btParams.topMargin = 20 + 55*j; //纵坐标定位
 
 
-            //btParams.setMargins(10+ ((width-50)/4+10)*(i%4),10+200*j,0,0);   //左上右下
+            RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(55,64);
+
+
             if(i == 0)
                  btParams.setMargins(500,500,0,0);   //左上右下
              else
-                btParams.setMargins(700,800,0,0);   //左上右下
+                btParams.setMargins(500,900,0,0);   //左上右下
 
-           // btParams.topMargin = 10+200*j;
 
-           // btParams.leftMargin = 30
+            btParams.addRule(RelativeLayout.BELOW, 1);
+            lay.addView(Btn[i],btParams);        //将按钮放入layout组件
 
-                    //btParams.topMargin = 0;
-                            layout.addView(Btn[i],btParams); //将按钮放入layout组件
         }
-        this.setContentView(layout);
+
+        //this.setContentView(lay);
 
         for(int k = 0; k <= Btn.length-1; k++) {
             //这里不需要findId，因为创建的时候已经确定哪个按钮对应哪个Id
@@ -82,7 +73,6 @@ public class MainActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     int i = (Integer) v.getTag();
-
                     Intent intent = new Intent();
                     intent.setClass(MainActivity.this, Second.class);
                     Bundle bundle = new Bundle();
@@ -93,8 +83,6 @@ public class MainActivity extends Activity {
                 }
             });
         }
-
-
     }
 }
 
