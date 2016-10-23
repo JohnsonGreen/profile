@@ -9,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  * Created by nero on 16-7-4.
  */
 public class Mqtt {
-    public String ret = "No data";
+    public String ret = "Nodata";
     private Handler handler;
     private String broker;
     private String userName;
@@ -104,7 +104,9 @@ public class Mqtt {
         persistence = new MemoryPersistence();
         mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setCleanSession(false);
-        mqttConnectOptions.setKeepAliveInterval(18330);
+        //mqttConnectOptions.setKeepAliveInterval(18330);
+        mqttConnectOptions.setKeepAliveInterval(1);
+
         mqttConnectOptions.setUserName(userName);
         mqttConnectOptions.setPassword(password.toCharArray());
 
