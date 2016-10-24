@@ -23,8 +23,10 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.LogRecord;
+
 
 
 public class MainActivity extends Activity {
@@ -38,7 +40,12 @@ public class MainActivity extends Activity {
     private Integer remain_width = 0;
     private Integer margin = 0;
     private RelativeLayout lay = null;
-    private Mqtt mq = null;
+    private Mqtt mqListen = null;
+    private Mqtt mqSend = null;
+
+    //private LinkedHashMap<String,String> coordinate;
+
+    private String[][] coordinate = new String[20][2];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +55,6 @@ public class MainActivity extends Activity {
 
         ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
         confirm_button.setClickable(false);
-
         System.out.println("+++++++++++++++++++++++++++++++++++");
              //Mqtt mqini = mqttinit();
 
@@ -59,17 +65,17 @@ public class MainActivity extends Activity {
              //mqini.listen();
 
 
-        mq = new mqttListen().mListen("#");
+        mqListen = new mqttListen().mListen("#");
+        mqSend = new mqttSend().mSend("coordinate","Hello");
 
         System.out.println("-----------------------------------");
 
 
         getremainHW();
 
-        Map<String,String> ma = strToMap("way=0&rec0=358@456@9@brown&rec2=695@168@9@syellow&rec3=851@565@9@syellow&rec4=763@484@9@bred&end=a");
+        LinkedHashMap<String,String> ma = strToMap("way=0&rec0=358@456@9@brown&rec2=695@168@9@syellow&rec3=851@565@9@syellow&rec4=763@484@9@bred&end=a");
 
         changeUI(ma);
-
 
 
 
@@ -84,21 +90,20 @@ public class MainActivity extends Activity {
                     LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
                     layout.removeView(lay);    //移除 动态添加的view
 
-                    if( ! mq.ret.equals("NoData")){
-                        Map<String,String> ma = strToMap(mq.ret);
+                    if( ! mqListen.ret.equals("NoData")){
+                        LinkedHashMap<String,String> ma = strToMap(mqListen.ret);
                         changeUI(ma);
                     }
                 }
             }
         };
-        mq.setHandler(handler);
+        mqListen.setHandler(handler);
 
 
         //1794 x 1080
         //1600 x 1080
         //qiu: 53
         //1366 x 667
-
 
 
     }
@@ -110,10 +115,8 @@ public class MainActivity extends Activity {
             mqtt.setUserName("admin");
             mqtt.setPassword("password");
             mqtt.setQos(1);
-
             String SerialNumber = android.os.Build.SERIAL;
             mqtt.setClientId(SerialNumber);
-
             mqtt.setContent("hello");
             mqtt.init();
             mqtt.send();
@@ -123,11 +126,11 @@ public class MainActivity extends Activity {
 
 
 
-    protected  Map toMap(String jsonString) throws JSONException {
+    protected  LinkedHashMap toMap(String jsonString) throws JSONException {
 
             JSONObject jsonObject = new JSONObject(jsonString);
 
-            Map result = new HashMap();
+        LinkedHashMap result = new LinkedHashMap();
             Iterator iterator = jsonObject.keys();
             String key = null;
             String value = null;
@@ -143,9 +146,9 @@ public class MainActivity extends Activity {
         }
 
 
-    protected  Map<String,String> strToMap(String str){
+    protected  LinkedHashMap<String,String> strToMap(String str){
 
-        Map<String,String> result = new HashMap();
+        LinkedHashMap<String,String> result = new LinkedHashMap();
         String[] sArray = str.split("\\&");
         for(String s : sArray){
             System.out.println(s);
@@ -207,7 +210,7 @@ public class MainActivity extends Activity {
         margin = (width - remain_width) / 2;
     }
 
-    protected void changeUI(Map<String,String> ma){
+    protected void changeUI(LinkedHashMap<String,String> ma){
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
         lay = new RelativeLayout(this);
@@ -228,12 +231,20 @@ public class MainActivity extends Activity {
                 String[] valArray = ma.get(key).split("\\@");
 
                 //int value = Integer.parseInt(ma.get(key));
+                String source_x = null;
+                String source_y = null;
 
-                int x = 0,y = 0,j = 0;
+
+
+                int  x = 0,y = 0,j = 0;
                 for(String s : valArray){
                     if(j == 0 ){
+                        source_x = s;
+                        coordinate[tot][0] = s;
                         y = (int)((Integer.parseInt(s)/1366.0f) * remain_height) + 5;
                     }else if(j == 1){
+                        source_y = s;
+                        coordinate[tot][1] = s;
                         x = (int)((Integer.parseInt(s)/667.0f) * remain_width) + margin;
                     }else{
                         break;
@@ -267,34 +278,23 @@ public class MainActivity extends Activity {
 
         layout.addView(lay,lp_fullWidth);
 
-        for(int k = 0; k <= tot-1; k++) {
+        for( int k = 0; k <= tot-1; k++) {
             //这里不需要findId，因为创建的时候已经确定哪个按钮对应哪个Id
             Btn[k].setTag(k);    //为按钮设置一个标记，来确认是按下了哪一个按钮
-
             Btn[k].setOnClickListener(new Button.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-
-//                    int i = (Integer) v.getTag();
-//                    Intent intent = new Intent();
-//                    intent.setClass(MainActivity.this, Second.class);
-//                    Bundle bundle = new Bundle();
-//                    bundle.putInt("count", i);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
-                    //MainActivity.this.finish();
-
                     ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
                     confirm_button.setClickable(true);
                     confirm_button.setOnClickListener(new Button.OnClickListener(){
+
                         @Override
                         public void onClick(View v) {
-                            Toast.makeText(getApplicationContext(), "这是一个提示", Toast.LENGTH_SHORT).show();
-                             //从资源文件string.xml 里面取提示信息
-                            //Toast.makeText(this, getString(R.string.welcome), Toast.LENGTH_SHORT).show();
 
-
+                            Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
+                            String codinate = coordinate[k][0] + "@" + coordinate[k][1];
+                            mqSend.setContent(codinate);
+                            mqSend.send();
                         }
                     });
 
