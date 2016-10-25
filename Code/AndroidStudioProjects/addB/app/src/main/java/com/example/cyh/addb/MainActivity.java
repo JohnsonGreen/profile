@@ -39,16 +39,19 @@ public class MainActivity extends Activity {
     private DisplayMetrics dm;
     private Handler handler = null;
     private Integer remain_height = 0;
+    private RelativeLayout lay = null;
     private Integer remain_width = 0;
     private Integer margin = 0;
     private Mqtt mqListen = null;
     private Mqtt mqSend = null;
     private int button_width = 58;
-    private int button_height = 64;
+    private int button_height = 58;
     private int hole_width = 80;
     private int hole_padding = 10;
     private int enable_id = -1;
     private int btnid = 0;
+
+    private ImageButton Btn[] = new ImageButton[20];
 
     //private LinkedHashMap<String,String> coordinate;
 
@@ -74,13 +77,9 @@ public class MainActivity extends Activity {
         mqSend = new mqttSend().mSend("coordinate","Hello");
 
         System.out.println("-----------------------------------");
-
         getremainHW();
-
         LinkedHashMap<String,String> ma = strToMap("way=0&rec3=100@200@9@syellow&rec4=1100@300@9@bred&end=a");
-
         changeUI(ma);
-
 
         handler = new Handler(){
 
@@ -89,14 +88,12 @@ public class MainActivity extends Activity {
                 if(msg.what == 1){
 
                     System.out.println("shoudao");
-
                     LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
-                    layout.removeAllViewsInLayout();
-                   // layout.removeView(group);    //移除 动态添加的view
-
+                    //layout.removeAllViews();
+                   layout.removeView(lay);    //移除 动态添加的view
                     if( ! mqListen.ret.equals("NoData")){
                         LinkedHashMap<String,String> mat = strToMap(mqListen.ret);
-                        //changeUI(mat);
+                        changeUI(mat);
                     }
                 }
             }
@@ -108,27 +105,10 @@ public class MainActivity extends Activity {
         //1600 x 1080
         //qiu: 53
         //1366 x 667
-
-
-    }
-
-    protected Mqtt  mqttinit() {
-            Mqtt mqtt = new Mqtt();
-            mqtt.setBroker("tcp://120.76.52.55:1883");
-            mqtt.setTopic("twtandroid1");
-            mqtt.setUserName("admin");
-            mqtt.setPassword("password");
-            mqtt.setQos(1);
-            String SerialNumber = android.os.Build.SERIAL;
-            mqtt.setClientId(SerialNumber);
-            mqtt.setContent("hello");
-            mqtt.init();
-            mqtt.send();
-            return mqtt;
     }
 
 
-
+    
 
     protected  LinkedHashMap toMap(String jsonString) throws JSONException {
 
@@ -186,6 +166,8 @@ public class MainActivity extends Activity {
 
         Integer button_hight = 2 * dip2px(this,50);                      //
 
+        System.out.println("button_hight : " + button_hight);
+
         int statusBarHeight = -1;
 //获取status_bar_height资源的ID
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
@@ -209,6 +191,7 @@ public class MainActivity extends Activity {
 
 
         remain_height = height - other_pixels();
+        System.out.println("remain_height" + remain_height);
         remain_width = (int)(remain_height * 667 / 1366.0f + 0.5f);
         margin = (width - remain_width) / 2;
     }
@@ -332,15 +315,32 @@ public class MainActivity extends Activity {
 
         //confirm_button.setClickable(false);
 
-
         LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
-        RelativeLayout lay = new RelativeLayout(this);
+        lay = new RelativeLayout(this);
         ViewGroup.LayoutParams lp_fullWidth =
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         ImageButton holeButton[] = new ImageButton[6];
-        ImageButton Btn[] = new ImageButton[20];
 
+
+        for(int i = 0; i < 6;i++){
+            RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(hole_width,hole_width);
+            if(i < 3){
+                btParams.setMargins(margin - hole_width/2, i*(remain_height/2),0,0);   //左上右下
+                System.out.println("di  "+ i +"  dian :  x : " + (margin - hole_width/2) + " y : " + i*(remain_height/3));
+            }else{
+                btParams.setMargins(margin + remain_width - hole_width/2,(i-3)*(remain_height/2) ,0,0);   //左上右下
+                System.out.println("di  "+ i +"  dian :  x : " + (margin + remain_width - hole_width/2) + " y : " + (i-3)*(remain_height/3));
+            }
+
+
+            holeButton[i] = new ImageButton(this);
+            holeButton[i].setImageResource(R.drawable.lan);
+            //holeButton[i].setScaleType(ImageView.ScaleType.CENTER );
+            //btParams.addRule(RelativeLayout.BELOW, 1);
+            lay.addView(holeButton[i],btParams);        //将按钮放入layout组件
+
+        }
         int tot = 0;
         if(ma.get("way").equals("0")){
 
@@ -371,15 +371,14 @@ public class MainActivity extends Activity {
                 Btn[tot]=new ImageButton(this);
                 Btn[tot].setId(2000+tot);
                 if(tot == 0)
-                    Btn[tot].setImageResource(R.drawable.circle_white);
+                    Btn[tot].setImageResource(R.drawable.white);
                 else
-                    Btn[tot].setImageResource(R.drawable.circle_green);
+                    Btn[tot].setImageResource(R.drawable.green);
 
-                Btn[tot].setScaleType(ImageView.ScaleType.CENTER );
+                //Btn[tot].setScaleType(ImageView.ScaleType.CENTER );
                 RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(button_width,button_height);
 
                 btParams.setMargins(x - button_width/2, y - button_height/2,0,0);   //左上右下
-
 
                 //btParams.addRule(RelativeLayout.BELOW, 1);
                 lay.addView(Btn[tot],btParams);        //将按钮放入layout组件
@@ -399,10 +398,14 @@ public class MainActivity extends Activity {
                     ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
                     btnid = v.getId() - 2000;
                     if(btnid != enable_id){
+                        if(enable_id != -1){
+                            Btn[enable_id].setImageResource(R.drawable.blue);
+                        }
+                        ImageButton temp = (ImageButton) v;
+                        temp.setImageResource(R.drawable.red);
                         confirm_button.setEnabled(true);
                         enable_id = btnid;
                     }
-
                 }
             });
         }
@@ -422,9 +425,7 @@ public class MainActivity extends Activity {
             }
         });
 
-
         confirm_button.setEnabled(false);
-
 
     }
 
