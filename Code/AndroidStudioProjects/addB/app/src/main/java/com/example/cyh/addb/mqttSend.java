@@ -9,7 +9,7 @@ public class mqttSend {
         Mqtt mqtt = new Mqtt();
         mqtt.setBroker("tcp://120.76.52.55:1883");
         mqtt.setTopic(topic);
-        mqtt.setUserName("admin");
+        mqtt.setUserName("hehehe");
         mqtt.setPassword("password");
         mqtt.setQos(1);
         mqtt.setClientId("twtandroid1");

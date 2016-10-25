@@ -104,8 +104,8 @@ public class Mqtt {
         persistence = new MemoryPersistence();
         mqttConnectOptions = new MqttConnectOptions();
         mqttConnectOptions.setCleanSession(false);
-        //mqttConnectOptions.setKeepAliveInterval(18330);
-        mqttConnectOptions.setKeepAliveInterval(1);
+        mqttConnectOptions.setKeepAliveInterval(18330);
+       // mqttConnectOptions.setKeepAliveInterval(1);
 
         mqttConnectOptions.setUserName(userName);
         mqttConnectOptions.setPassword(password.toCharArray());
