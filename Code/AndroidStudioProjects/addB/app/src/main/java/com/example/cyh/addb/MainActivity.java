@@ -48,10 +48,16 @@ public class MainActivity extends Activity {
     private int button_height = 58;
     private int hole_width = 80;
     private int hole_padding = 10;
+    private int hole_id = -1;
     private int enable_id = -1;
+    private int enable_hole_id = -1;
     private int btnid = 0;
 
     private ImageButton Btn[] = new ImageButton[20];
+    private ImageButton holeButton[] = new ImageButton[6];
+
+    private boolean hole_enable = false;
+    private boolean ball_enable = false;
 
     //private LinkedHashMap<String,String> coordinate;
 
@@ -65,10 +71,8 @@ public class MainActivity extends Activity {
 
         System.out.println("+++++++++++++++++++++++++++++++++++");
              //Mqtt mqini = mqttinit();
-
              //mqini.setContent("heheda!!!!!");
              //mqini.send();
-
              //mqini.setTopic("#");
              //mqini.listen();
 
@@ -78,7 +82,7 @@ public class MainActivity extends Activity {
 
         System.out.println("-----------------------------------");
         getremainHW();
-        LinkedHashMap<String,String> ma = strToMap("way=0&rec3=100@200@9@syellow&rec4=1100@300@9@bred&end=a");
+        LinkedHashMap<String,String> ma = strToMap("way=0&rec3=100@200@9@syellow&rec2=150@200@9@white&rec4=1100@300@9@bred&end=a");
         changeUI(ma);
 
         handler = new Handler(){
@@ -108,7 +112,7 @@ public class MainActivity extends Activity {
     }
 
 
-    
+
 
     protected  LinkedHashMap toMap(String jsonString) throws JSONException {
 
@@ -212,115 +216,10 @@ public class MainActivity extends Activity {
 
     protected void changeUI(LinkedHashMap<String,String> ma){
 
-
-  /*
-        LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
-        RadioGroup group = new RadioGroup(this);
-        group.setOrientation(LinearLayout.VERTICAL);
-        RelativeLayout lay = new RelativeLayout(this);
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        RadioButton radioButton[] = new RadioButton[20];
-        int tot = 0;
-        if(ma.get("way").equals("0")){
-
-            for(String key : ma.keySet()) {
-                if(key.equals("way")){
-                    continue;
-                }
-                System.out.println("key:" + key);
-                System.out.println("values:" + ma.get(key));
-
-                String[] valArray = ma.get(key).split("@");
-
-                int  x = 0,y = 0,j = 0;
-                for(String s : valArray){
-                    if(j == 0 ){
-                        coordinate[tot][0] = s;
-                        y = (int)((Integer.parseInt(s)/1366.0f) * remain_height) + 5;
-
-                    }else if(j == 1){
-                        coordinate[tot][1] = s;
-                        x = (int)((Integer.parseInt(s)/667.0f) * remain_width) + margin;
-
-
-                    }else{
-                        break;
-                    }
-                    j++;
-                }
-                radioButton[tot]=new RadioButton(this);
-                radioButton[tot].setId(2000+tot);
-                radioButton[tot].setButtonDrawable(R.drawable.circle_green);
-
-                System.out.println("tot: "+ tot);
-
-                if(tot == 0)
-                    radioButton[tot].setBackgroundResource(R.drawable.button_color);
-                else
-                    radioButton[tot].setBackgroundResource(R.drawable.button_color);
-
-                //radioButton[tot].setScaleType(ImageView.ScaleType.CENTER );
-
-                RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(57,55);
-                btParams.setMargins(x, y, 0, 0);
-
-                //radioButton[tot].set;
-
-                //btParams.setMargins();
-
-                //setLayout(radioButton[tot],x,y);
-
-                System.out.println("y : " + y);
-                System.out.println("x : " + x);
-
-                //group.addView(radioButton[tot],btParams);        //将按钮放入layout组件
-                group.addView(radioButton[tot],btParams);
-                tot++;
-            }
-        }
-        //group.addView(lay);
-        lay.addView(group);
-        layout.addView(lay,layoutParams);
-
-        group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                //在这个函数里面用来改变选择的radioButton的数值，以及与其值相关的
-                // 任何操作，详见下文
-                id = checkedId - 2000;
-                ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
-                confirm_button.setEnabled(true);
-
-            }
-        });
-
-        ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
-        confirm_button.setOnClickListener(new Button.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
-                String codinate = coordinate[id][0] + "@" + coordinate[id][1];
-                mqSend.setContent(codinate);
-                mqSend.send();
-                ImageButton ib = (ImageButton)v;
-                ib.setEnabled(false);
-            }
-        });
-
-        confirm_button.setEnabled(false);
-
-        */
-
-
-        //confirm_button.setClickable(false);
-
         LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
         lay = new RelativeLayout(this);
         ViewGroup.LayoutParams lp_fullWidth =
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
-        ImageButton holeButton[] = new ImageButton[6];
 
 
         for(int i = 0; i < 6;i++){
@@ -335,12 +234,15 @@ public class MainActivity extends Activity {
 
 
             holeButton[i] = new ImageButton(this);
-            holeButton[i].setImageResource(R.drawable.lan);
+            holeButton[i].setId(1200+i);
+            //holeButton[i].setImageResource(R.drawable.lan);
+            holeButton[i].setBackgroundResource(R.drawable.hole);
             //holeButton[i].setScaleType(ImageView.ScaleType.CENTER );
             //btParams.addRule(RelativeLayout.BELOW, 1);
             lay.addView(holeButton[i],btParams);        //将按钮放入layout组件
 
         }
+
         int tot = 0;
         if(ma.get("way").equals("0")){
 
@@ -354,6 +256,7 @@ public class MainActivity extends Activity {
                 String[] valArray = ma.get(key).split("\\@");
 
                 int  x = 0,y = 0,j = 0;
+                boolean isWhite = false;
                 for(String s : valArray){
                     if(j == 0 ){
                         coordinate[tot][0] = s;
@@ -362,7 +265,12 @@ public class MainActivity extends Activity {
 
                         coordinate[tot][1] = s;
                         x = (int)((Integer.parseInt(s)/667.0f) * remain_width) + margin;
-                    }else{
+                    }else if(j == 2){
+                        continue;
+                    }else if(j == 3){
+                        if(s.equals("white")){
+                            isWhite = true;
+                        }
                         break;
                     }
                     j++;
@@ -370,10 +278,11 @@ public class MainActivity extends Activity {
 
                 Btn[tot]=new ImageButton(this);
                 Btn[tot].setId(2000+tot);
-                if(tot == 0)
-                    Btn[tot].setImageResource(R.drawable.white);
+
+                if(isWhite)
+                    Btn[tot].setBackgroundResource(R.drawable.white);
                 else
-                    Btn[tot].setImageResource(R.drawable.green);
+                    Btn[tot].setBackgroundResource(R.drawable.ball);
 
                 //Btn[tot].setScaleType(ImageView.ScaleType.CENTER );
                 RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(button_width,button_height);
@@ -388,7 +297,6 @@ public class MainActivity extends Activity {
         }
 
         layout.addView(lay,lp_fullWidth);
-
         for( int k = 0; k <= tot-1; k++) {
             //这里不需要findId，因为创建的时候已经确定哪个按钮对应哪个Id
             Btn[k].setTag(k);    //为按钮设置一个标记，来确认是按下了哪一个按钮
@@ -397,18 +305,47 @@ public class MainActivity extends Activity {
                 public void onClick(View v) {
                     ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
                     btnid = v.getId() - 2000;
-                    if(btnid != enable_id){
+                   // if(btnid != enable_id){
                         if(enable_id != -1){
-                            Btn[enable_id].setImageResource(R.drawable.blue);
+                            Btn[enable_id].setBackgroundResource(R.drawable.ball);
                         }
+
+                        ball_enable = true;
                         ImageButton temp = (ImageButton) v;
-                        temp.setImageResource(R.drawable.red);
-                        confirm_button.setEnabled(true);
+                        temp.setBackgroundResource(R.drawable.ball_on);
+                         confirm_button.setClickable(true);
+                         confirm_button.setImageResource(R.drawable.confirm_button_light);
                         enable_id = btnid;
-                    }
+                  //  }
                 }
             });
         }
+       for(int i = 0;i < 6;i++){
+           holeButton[i].setTag(i);
+           holeButton[i].setOnClickListener(new Button.OnClickListener(){
+               @Override
+               public void onClick(View v) {
+
+                   hole_id = v.getId() - 1200;
+                   ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
+
+                   //if(hole_id != enable_hole_id){
+
+                       if(enable_hole_id != -1){
+                           holeButton[enable_hole_id].setBackgroundResource(R.drawable.hole);
+                       }
+                       ImageButton temp = (ImageButton) v;
+                       temp.setBackgroundResource(R.drawable.hole_on);
+                       hole_enable = true;
+                       confirm_button.setClickable(true);
+                       confirm_button.setImageResource(R.drawable.confirm_button_light);
+                       enable_hole_id = hole_id;
+
+                  // }
+               }
+           });
+       }
+
 
         ImageButton confirm_button = (ImageButton)findViewById(R.id.confirm_button);
         confirm_button.setOnClickListener(new Button.OnClickListener(){
@@ -416,19 +353,32 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                 String codinate = coordinate[btnid][0] + "@" + coordinate[btnid][1];
-                 mqSend.setContent(codinate);
-                 mqSend.send();
-                 Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
-                 v.setEnabled(false);
+                if(!ball_enable && hole_enable){
+                    Toast.makeText(getApplicationContext(), "请再选择一个球！", Toast.LENGTH_SHORT).show();
+                }else if(ball_enable && !hole_enable){
+                    Toast.makeText(getApplicationContext(), "请再选择一个球洞！", Toast.LENGTH_SHORT).show();
+                }else{
+                    String codinate = coordinate[btnid][0] + "@" + coordinate[btnid][1] + "@"+hole_id;
+                    mqSend.setContent(codinate);
+                    mqSend.send();
+                    Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
+
+                    ImageButton temp = (ImageButton)v;
+                    temp.setClickable(false);
+                    temp.setImageResource(R.drawable.confirm_button_dark);
+
+                    ball_enable = false;
+                    hole_enable = false;
+                    holeButton[hole_id].setBackgroundResource(R.drawable.hole);
+                    Btn[btnid].setBackgroundResource(R.drawable.ball);
+
+                }
 
             }
         });
 
-        confirm_button.setEnabled(false);
-
+        confirm_button.setClickable(false);
     }
-
 
 }
 
