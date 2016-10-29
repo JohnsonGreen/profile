@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.LogRecord;
 
 
@@ -57,9 +59,11 @@ public class MainActivity extends Activity {
     private int enable_hole_id = -1;
     private int btnid = 0;
     private int button_hight_dp = 70;  //返回键+ 确认键的高度dp
-    private int white_id = 0;
 
+    private int tot = 0;            //识别到的台球总数
 
+    private String white_x = null;
+    private String white_y = null;
 
 
     private  Hights high = new Hights();
@@ -82,8 +86,6 @@ public class MainActivity extends Activity {
 
 
 
-
-
         System.out.println("getScreenHeight： " + high.getScreenHeight(this));
         System.out.println("getBottomStatusHeight： " + high.getBottomStatusHeight(this));
         System.out.println("getDpi： " + high.getDpi(this));
@@ -93,11 +95,22 @@ public class MainActivity extends Activity {
         getremainHW();
 
 
-        mqListen = new mqttListen().mListen("hahahaha");
-        mqSend = new mqttSend().mSend("coordinate","Hello");
+
+
+        mqListen = new mqttListen().mListen("hehehe");
+        mqSend = new mqttSend().mSend("coordinate","0");
         getremainHW();
-        LinkedHashMap<String,String> ma = strToMap("way=0&rec3=1200@320@9@syellow&rec2=440@550@9@white&rec4=1100@300@9@bred&end=a");
+
+
+        LinkedHashMap<String,String> ma = null;
+        try {
+            ma = strToMap("{\"way\":\"0\",\"rec2\":\"351@338@8@white\",\"rec3\":\"185@166@8@black\",\"rec4\":\"139@546@8@bred\",\"end\":\"\\n\"}");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         changeUI(ma);
+
 
         handler = new Handler(){
 
@@ -109,10 +122,20 @@ public class MainActivity extends Activity {
                     LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
 
                     //layout.removeAllViews();
-                   layout.removeView(lay);    //移除 动态添加的view
+
                     if( ! mqListen.ret.equals("NoData")){
-                        LinkedHashMap<String,String> mat = strToMap(mqListen.ret);
-                        changeUI(mat);
+                        LinkedHashMap<String,String> mat = null;
+                        try {
+                            mat = strToMap(mqListen.ret);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(isChanged(mat)){
+                            layout.removeView(lay);    //移除 动态添加的view
+                            changeUI(mat);
+                        }
+
+
                     }
                 }
             }
@@ -150,10 +173,27 @@ public class MainActivity extends Activity {
         }
 
 
-    protected  LinkedHashMap<String,String> strToMap(String str){
+    protected  LinkedHashMap<String,String> strToMap(String str) throws JSONException {
 
-        LinkedHashMap<String,String> result = new LinkedHashMap();
-        String[] sArray = str.split("&");
+      LinkedHashMap<String,String> result = new LinkedHashMap();
+       // String[] sArray = str.split("&");
+
+        JSONObject jsonObject = new JSONObject(str);
+        Iterator iterator = jsonObject.keys();
+        String key = null;
+        String value = null;
+
+        while (iterator.hasNext()) {
+
+            key = (String) iterator.next();
+            value = jsonObject.getString(key);
+            if(key.equals("end"))
+                continue;
+            result.put(key, value);
+
+        }
+
+    /*
         for(String s : sArray){
             System.out.println(s);
             String[] stemp = s.split("=");
@@ -168,10 +208,9 @@ public class MainActivity extends Activity {
             result.put(stemp[0], stemp[1]);
         }
 
-        for(String key : result.keySet()) {
-            System.out.println("key:" + key);
-            System.out.println("values:" + result.get(key));
-        }
+        */
+
+
 
         return result;
 
@@ -213,27 +252,68 @@ public class MainActivity extends Activity {
 
     protected boolean isChanged(LinkedHashMap<String,String> ma){
 
+          if(ma.isEmpty() || (ma.size() - 1) != tot ){
+              return true;
+          }
 
+         int tx,ty;
+         for(String key : ma.keySet()) {
+             if(key.equals("way")){
+                 continue;
+             }
+
+             String[] valArray = ma.get(key).split("\\@");
+
+             int  x = 0,y = 0,j = 0;
+             for(String s : valArray){
+                 if(j == 0 ){
+                    x = Integer.parseInt(s);
+                 }else if(j == 1){
+                    y = Integer.parseInt(s);
+                    break;
+                 }
+                 j++;
+             }
+             int i = 0;
+            for(;i < tot;i++){
+
+                tx = Integer.parseInt(coordinate[i][0]);
+                ty = Integer.parseInt(coordinate[i][1]);
+
+                if(Math.pow(tx-x,2) + Math.pow(ty-y,2) < 625){        //存在跟之前坐标一样的球
+                    i--;
+                    break;
+                }
+            }
+             if(i == tot ){
+                 return true;
+             }
+         }
+
+        return false;
 
     }
 
 
     protected void changeUI(LinkedHashMap<String,String> ma){
 
+        white_x = null;
+        white_y = null;
+        System.out.println("ma.size: " + ma.size());
+
+        int white_id = -1;
+
         int lf_border = (int)(75 * remain_height / 1488.0 + 0.5f);
         int to_border = (int)(87 * remain_height / 1488.0 + 0.5f);
         int ri_border = (int)(77 * remain_height / 1488.0 + 0.5f);
         int do_border = (int)(73 * remain_height / 1488.0 + 0.5f);
-        int real_desk_width = remain_width - lf_border -ri_border;
+        int real_desk_width = remain_width - lf_border - ri_border;
         int real_desk_hight = remain_height - to_border - do_border;
 
         int button_width = 40 * real_desk_hight / 1366;
 
-
-
         System.out.println("real_desk_width: " + real_desk_width);
         System.out.println("real_desk_hight: " + real_desk_hight);
-
 
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
@@ -268,7 +348,7 @@ public class MainActivity extends Activity {
 
         }
 
-        int tot = 0;
+        tot = 0;
         if(ma.get("way").equals("0")){
 
             for(String key : ma.keySet()) {
@@ -299,6 +379,8 @@ public class MainActivity extends Activity {
                         System.out.println(s.equals("white"));
                         if(s.equals("white")){
                             System.out.println("isWhite "+isWhite);
+                            white_x = coordinate[tot][0];
+                            white_y = coordinate[tot][1];
                             isWhite = true;
                         }
                         break;
@@ -395,7 +477,7 @@ public class MainActivity extends Activity {
                 }else if(ball_enable && !hole_enable){
                     Toast.makeText(getApplicationContext(), "请再选择一个球洞！", Toast.LENGTH_SHORT).show();
                 }else{
-                    String codinate = coordinate[btnid][0] + "@" + coordinate[btnid][1] + "@"+hole_id;
+                    String codinate = "0" + "\r\n"+ white_x + "\r\n" + white_y + "\r\n" + coordinate[btnid][0] + "\r\n" + coordinate[btnid][1] + "\r\n"+(hole_id + 1);
                     mqSend.setContent(codinate);
                     mqSend.send();
                     Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
