@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:weightSum="1">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/textview_border"
+            android:layout_gravity="center_horizontal"
+            android:weightSum="1">
+
+            <ImageButton
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:id="@+id/imageButton8"
+                android:layout_gravity="left|center_vertical"
+                android:src="@drawable/left"
+                android:background="#00000000"
+                android:scaleType="fitCenter"/>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.35"></FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="历史记录"
+                android:textColor="@color/white"
+                android:id="@+id/textView19"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
