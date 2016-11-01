@@ -74,6 +74,9 @@ public class MainActivity extends Activity {
     private boolean hole_enable = false;
     private boolean ball_enable = false;
 
+    private boolean flag = false;
+    private int mutex = 0;
+
     //private LinkedHashMap<String,String> coordinate;
 
     private String[][] coordinate = new String[50][2];
@@ -83,8 +86,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-
+        mqListen = new mqttListen().mListen("hehehe");
 
         System.out.println("getScreenHeight： " + high.getScreenHeight(this));
         System.out.println("getBottomStatusHeight： " + high.getBottomStatusHeight(this));
@@ -94,17 +96,13 @@ public class MainActivity extends Activity {
         other_pixels();
         getremainHW();
 
-
-
-
         mqListen = new mqttListen().mListen("hehehe");
-        mqSend = new mqttSend().mSend("coordinate","0");
+        mqSend = new mqttSend().mSend("coordinate","0","sendY=0");
         getremainHW();
-
 
         LinkedHashMap<String,String> ma = null;
         try {
-            ma = strToMap("{\"way\":\"0\",\"rec2\":\"351@338@8@white\",\"rec3\":\"185@166@8@black\",\"rec4\":\"139@546@8@bred\",\"end\":\"\\n\"}");
+            ma = strToMap("{\"way\":\"0\",\"rec2\":\"0@0@8@white\",\"rec3\":\"185@166@8@black\",\"rec4\":\"139@546@8@bred\",\"end\":\"\\n\"}");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -117,26 +115,40 @@ public class MainActivity extends Activity {
             @Override
             public void handleMessage(Message msg) {
                 if(msg.what == 1){
+                    if(mutex == 0){
+                        if(!flag){
+                            mutex = 1;
+                            TimerTask task = new TimerTask(){
+                                public void run(){
+                                    flag = true;
+                                    this.cancel();
+                                    mutex = 0;
+                                }
+                            };
+                            Timer timer = new Timer();
+                            timer.schedule(task, 2000);
 
-                    System.out.println("shoudao");
-                    LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
+                        }else{
+                            System.out.println("shoudao");
+                            LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
+                            if( ! mqListen.ret.equals("NoData")){
+                                LinkedHashMap<String,String> mat = null;
+                                try {
+                                    mat = strToMap(mqListen.ret);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                if(isChanged(mat)){
+                                    layout.removeView(lay);    //移除 动态添加的view
+                                    changeUI(mat);
+                                }
+                            }
 
-                    //layout.removeAllViews();
-
-                    if( ! mqListen.ret.equals("NoData")){
-                        LinkedHashMap<String,String> mat = null;
-                        try {
-                            mat = strToMap(mqListen.ret);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            flag = false;
                         }
-                        if(isChanged(mat)){
-                            layout.removeView(lay);    //移除 动态添加的view
-                            changeUI(mat);
-                        }
-
-
                     }
+
+
                 }
             }
         };
@@ -144,12 +156,10 @@ public class MainActivity extends Activity {
 
 
 
-
         //1794 x 1080
         //1600 x 1080
         //qiu: 53
         //1366 x 667
-
         //球桌大小 1488x800
     }
 
@@ -403,7 +413,7 @@ public class MainActivity extends Activity {
                 //Btn[tot].setScaleType(ImageView.ScaleType.CENTER );
                 RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(button_width,button_width);
 
-                btParams.setMargins(x - button_width/2, y - button_width/2,0,0);   //左上右下
+                btParams.setMargins(real_desk_width - x + button_width/2, y - button_width/2,0,0);   //左上右下
 
                 //btParams.addRule(RelativeLayout.BELOW, 1);
                 lay.addView(Btn[tot],btParams);        //将按钮放入layout组件
@@ -477,7 +487,15 @@ public class MainActivity extends Activity {
                 }else if(ball_enable && !hole_enable){
                     Toast.makeText(getApplicationContext(), "请再选择一个球洞！", Toast.LENGTH_SHORT).show();
                 }else{
-                    String codinate = "0" + "\r\n"+ white_x + "\r\n" + white_y + "\r\n" + coordinate[btnid][0] + "\r\n" + coordinate[btnid][1] + "\r\n"+(hole_id + 1);
+
+                     int temphole = hole_id;
+                    if(temphole < 3){
+                        temphole +=3;
+                    }else{
+                        temphole -=3;
+                    }
+
+                    String codinate = "0" + "\r\n"+ white_x + "\r\n" + white_y + "\r\n" + coordinate[btnid][0] + "\r\n" + coordinate[btnid][1] + "\r\n"+(temphole+ 1);
                     mqSend.setContent(codinate);
                     mqSend.send();
                     Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
