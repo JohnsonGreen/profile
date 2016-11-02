@@ -86,13 +86,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        mqListen = new mqttListen().mListen("hehehe");
 
         System.out.println("getScreenHeight： " + high.getScreenHeight(this));
         System.out.println("getBottomStatusHeight： " + high.getBottomStatusHeight(this));
         System.out.println("getDpi： " + high.getDpi(this));
         System.out.println("getTitleHeight： " + high.getTitleHeight(this));
         System.out.println("getStatusHeight： " + high.getStatusHeight(this));
+
         other_pixels();
         getremainHW();
 
@@ -102,19 +102,20 @@ public class MainActivity extends Activity {
 
         LinkedHashMap<String,String> ma = null;
         try {
-            ma = strToMap("{\"way\":\"0\",\"rec2\":\"0@0@8@white\",\"rec3\":\"185@166@8@black\",\"rec4\":\"139@546@8@bred\",\"end\":\"\\n\"}");
+            ma = strToMap("{\"way\":\"0\",\"rec2\":\"0@0@8@white\",\"rec3\":\"0@667@8@black\",\"rec4\":\"1366@0@8@bred\",\"end\":\"\\n\"}");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         changeUI(ma);
 
-
         handler = new Handler(){
 
             @Override
             public void handleMessage(Message msg) {
                 if(msg.what == 1){
+
+                   // mutex = 1;   //测试用
                     if(mutex == 0){
                         if(!flag){
                             mutex = 1;
@@ -129,7 +130,8 @@ public class MainActivity extends Activity {
                             timer.schedule(task, 2000);
 
                         }else{
-                            System.out.println("shoudao");
+
+                            //System.out.println("shoudao");
                             LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
                             if( ! mqListen.ret.equals("NoData")){
                                 LinkedHashMap<String,String> mat = null;
@@ -155,7 +157,18 @@ public class MainActivity extends Activity {
         mqListen.setHandler(handler);
 
 
-
+        ImageButton returnButton = (ImageButton)findViewById(R.id.return_button);
+        returnButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+        );
+        
         //1794 x 1080
         //1600 x 1080
         //qiu: 53
@@ -202,24 +215,6 @@ public class MainActivity extends Activity {
             result.put(key, value);
 
         }
-
-    /*
-        for(String s : sArray){
-            System.out.println(s);
-            String[] stemp = s.split("=");
-
-            if(stemp[0].equals("end")){
-                continue;
-            }
-
-            System.out.println("stemp[0]: " + stemp[0]);
-            System.out.println("stemp[1]: " + stemp[1]);
-
-            result.put(stemp[0], stemp[1]);
-        }
-
-        */
-
 
 
         return result;
@@ -307,9 +302,6 @@ public class MainActivity extends Activity {
 
     protected void changeUI(LinkedHashMap<String,String> ma){
 
-        white_x = null;
-        white_y = null;
-        System.out.println("ma.size: " + ma.size());
 
         int white_id = -1;
 
@@ -320,10 +312,18 @@ public class MainActivity extends Activity {
         int real_desk_width = remain_width - lf_border - ri_border;
         int real_desk_hight = remain_height - to_border - do_border;
 
-        int button_width = 40 * real_desk_hight / 1366;
+
+
+        int button_width = 40 * real_desk_hight / 1366;                   //button_width是各个台球的按钮
 
         System.out.println("real_desk_width: " + real_desk_width);
         System.out.println("real_desk_hight: " + real_desk_hight);
+
+
+        System.out.println("lf_border: " + lf_border);
+        System.out.println("ri_border: " + ri_border);
+        System.out.println("to_border: " + to_border);
+        System.out.println("do_border: " + do_border);
 
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.linearBelow);
@@ -340,11 +340,10 @@ public class MainActivity extends Activity {
             if(i < 3){
                // btParams.setMargins(hole_margin - hole_width/2, i*(remain_height/2),0,0);   //左上右下
                 btParams.setMargins(lf_border - hole_width/2, to_border - hole_width/2 + i * (real_desk_hight/2),0,0);   //左上右下
-                System.out.println("di  "+ i +"  dian :  x : " + (lf_border - hole_width) + " y : " + (to_border - hole_width));
+                System.out.println("di  "+ i +"  dian :  x : " + (lf_border - hole_width/2) + " y : " + (to_border - hole_width/2 + i * (real_desk_hight/2)));
             }else{
                 btParams.setMargins(lf_border + real_desk_width - hole_width/2, (to_border - hole_width/2) + (i - 3) * (real_desk_hight/2),0,0);   //左上右下
-
-                System.out.println("di  "+ i +"  dian :  x : " + (lf_border + real_desk_width - hole_width/2) + " y : " + (to_border - hole_width/2) + (i - 3) * (real_desk_hight/2));
+                System.out.println("di  "+ i +"  dian :  x : " + (lf_border + real_desk_width - hole_width/2) + " y : " + ((to_border - hole_width/2) + (i - 3) * (real_desk_hight/2)));
             }
 
 
@@ -373,22 +372,29 @@ public class MainActivity extends Activity {
                 int  x = 0,y = 0,j = 0;
 
                 boolean isWhite = false;
+
+                int middle = lf_border + real_desk_width/2;
+
                 for(String s : valArray){
                     if(j == 0 ){
                         coordinate[tot][0] = s;
-                        y = (int)((Integer.parseInt(s)/1366.0f) * real_desk_hight) + to_border;
+
+                        y = (int)((Integer.parseInt(s)/1366.0f) * real_desk_hight) + to_border - button_width/2;
+
+
                     }else if(j == 1){
 
                         coordinate[tot][1] = s;
-                        x = (int)((Integer.parseInt(s)/667.0f) * real_desk_width) + lf_border;
+                       int tx = (int)((Integer.parseInt(s)/667.0f) * real_desk_width) + lf_border;
+
+                        x = lf_border + real_desk_width - (tx - lf_border - button_width/2) - button_width;
+
+
                     }else if(j == 2){
-                        System.out.println("j=2 s= "+s);
+                        System.out.println("X :" + (x - button_width/2) + "  Y : " + (y - button_width/2) );
 
                     }else if(j == 3){
-                        System.out.println("j=3 s= "+s);
-                        System.out.println(s.equals("white"));
                         if(s.equals("white")){
-                            System.out.println("isWhite "+isWhite);
                             white_x = coordinate[tot][0];
                             white_y = coordinate[tot][1];
                             isWhite = true;
@@ -409,11 +415,12 @@ public class MainActivity extends Activity {
                     Btn[tot].setBackgroundResource(R.mipmap.ball);
                 }
 
-
                 //Btn[tot].setScaleType(ImageView.ScaleType.CENTER );
                 RelativeLayout.LayoutParams btParams = new  RelativeLayout.LayoutParams(button_width,button_width);
 
-                btParams.setMargins(real_desk_width - x + button_width/2, y - button_width/2,0,0);   //左上右下
+
+                btParams.setMargins(x, y,0,0);   //左上右下
+                System.out.println( "第"+tot+"个球 ： 坐标--- X : "+ x+ "  Y : " + y);
 
                 //btParams.addRule(RelativeLayout.BELOW, 1);
                 lay.addView(Btn[tot],btParams);        //将按钮放入layout组件
@@ -495,7 +502,7 @@ public class MainActivity extends Activity {
                         temphole -=3;
                     }
 
-                    String codinate = "0" + "\r\n"+ white_x + "\r\n" + white_y + "\r\n" + coordinate[btnid][0] + "\r\n" + coordinate[btnid][1] + "\r\n"+(temphole+ 1);
+                    String codinate = "0" + "\r\n" + coordinate[btnid][0] + "\r\n" + coordinate[btnid][1] + "\r\n"+(temphole+ 1);
                     mqSend.setContent(codinate);
                     mqSend.send();
                     Toast.makeText(getApplicationContext(), "信息已发送 ", Toast.LENGTH_SHORT).show();
