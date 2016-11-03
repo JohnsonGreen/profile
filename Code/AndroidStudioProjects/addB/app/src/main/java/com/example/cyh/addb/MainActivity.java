@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
                     }
                 }
         );
-        
+
         //1794 x 1080
         //1600 x 1080
         //qiu: 53

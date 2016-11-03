@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -59,7 +58,7 @@ public class SecondActivity extends Activity {
        // LeakCanary.install(this);
 
         setContentView(R.layout.activity_second);
-        imageButton = (ImageButton)findViewById(R.id.imageButton2);
+        imageButton = (ImageButton)findViewById(R.id.point_button);
         mSend = new mqttSend().mSend("coordinate","1","sendY=1");
 
         //Mqtt mqListen = new mqttListen().mListen("hehehe");
@@ -83,7 +82,7 @@ public class SecondActivity extends Activity {
             }
         });
 
-        imageButton = (ImageButton)findViewById(R.id.imageButton3);
+        imageButton = (ImageButton)findViewById(R.id.choose_button);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,8 +113,9 @@ public class SecondActivity extends Activity {
         */
 
 
+        /*
         //给
-        imageButton = (ImageButton)findViewById(R.id.imageButton4);
+        imageButton = (ImageButton)findViewById(R.id.lidu_button);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,6 +153,8 @@ public class SecondActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+        */
 
 
 
