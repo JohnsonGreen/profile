@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
 
         LinkedHashMap<String,String> ma = null;
         try {
-            ma = strToMap("{\"way\":\"0\",\"rec2\":\"0@0@8@white\",\"rec3\":\"0@667@8@black\",\"rec4\":\"1366@0@8@bred\",\"end\":\"\\n\"}");
+            ma = strToMap("{\"way\":\"0\",\"rec2\":\"800@100@8@white\",\"rec3\":\"700@320@8@black\",\"rec4\":\"500@300@8@bred\",\"end\":\"\\n\"}");
         } catch (JSONException e) {
             e.printStackTrace();
         }
