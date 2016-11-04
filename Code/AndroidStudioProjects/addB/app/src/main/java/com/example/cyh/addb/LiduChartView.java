@@ -17,6 +17,9 @@ import java.util.List;
  * Created by moon on 2016/7/27.
  */
 public class LiduChartView extends View {
+
+    private Handler handler;
+
     private int XPoint = 100;
     private int YPoint = 600;
     private int XScale = 120;  //刻度长度
@@ -32,43 +35,52 @@ public class LiduChartView extends View {
 
     private int message = 150;
 
-    private Handler handler = new Handler(){
-        public void handleMessage(Message msg) {
-            if(msg.what == 0x1234){
-                LiduChartView.this.invalidate();
-            }
-        };
-    };
+
+//
+//    private Handler handler = new Handler(){
+//        public void handleMessage(Message msg) {
+//            if(msg.what == 0x1234){
+//                LiduChartView.this.invalidate();
+//            }
+//        }
+//    };
+
 
     public void setMessage(int message){
         this.message = message;
     }
+    public void setHandler(Handler handler){this.handler = handler;}
+    public List<Integer> getDataList(){return this.data;}
+    public int getMaxSize(){return this.MaxDataSize;}
+
 
     public LiduChartView(Context context, AttributeSet attrs) {
         super(context, attrs);
         int j = 0;
         for(int i = 0; i < YLabel.length; i++){
             YLabel[i] = String.valueOf(j);
-            j = j + 100;
+            j = j + 10;
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(data.size() >= MaxDataSize){
-                        data.remove(0);
-                    }
-                    data.add(message);
-                    handler.sendEmptyMessage(0x1234);
-                }
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while(true){
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if(data.size() >= MaxDataSize){
+//                        data.remove(0);
+//                    }
+//                    data.add(message);
+//                    handler.sendEmptyMessage(0x1234);
+//                }
+//            }
+//        }).start();
+
+
     }
 
     @Override

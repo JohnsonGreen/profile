@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
         other_pixels();
         getremainHW();
 
-        mqListen = new mqttListen().mListen("hehehe");
+        mqListen = new mqttListen().mListen("hehehe","getCoordinate");
         mqSend = new mqttSend().mSend("coordinate","0","sendY=0");
         getremainHW();
 
@@ -114,7 +114,6 @@ public class MainActivity extends Activity {
             @Override
             public void handleMessage(Message msg) {
                 if(msg.what == 1){
-
                    // mutex = 1;   //测试用
                     if(mutex == 0){
                         if(!flag){

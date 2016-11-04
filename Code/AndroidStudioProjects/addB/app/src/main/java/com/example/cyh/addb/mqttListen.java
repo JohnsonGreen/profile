@@ -7,7 +7,7 @@ package com.example.cyh.addb;
 public class mqttListen {
 
 
-    public Mqtt mListen(String topic ) {
+    public Mqtt mListen(String topic, String clientId) {
         Mqtt mqtt = new Mqtt();
         mqtt.setBroker("tcp://120.76.52.55:1883");
         mqtt.setTopic(topic);
