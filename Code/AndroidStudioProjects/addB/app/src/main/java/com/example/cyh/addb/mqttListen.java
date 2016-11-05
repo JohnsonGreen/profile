@@ -14,7 +14,7 @@ public class mqttListen {
         mqtt.setUserName("admin");
         mqtt.setPassword("password");
         mqtt.setQos(1);
-        mqtt.setClientId("twtandroid");
+        mqtt.setClientId(clientId);
 
         mqtt.init();
         mqtt.listen();

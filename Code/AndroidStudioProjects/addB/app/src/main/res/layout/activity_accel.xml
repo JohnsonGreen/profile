@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ACCEL"
+        android:text="力度检测"
         android:textAlignment="center"
         android:textSize="30dp"
         android:textColor="@color/white"/>
@@ -24,10 +24,12 @@
         android:textColor="@color/white"
         android:textSize="60dp"
         android:textAlignment="center" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:height="20dp"/>
+        android:height="20dp"
+        android:id="@+id/textView7" />
 
     <com.example.cyh.addb.LiduChartView
         android:id="@+id/LiduChart"

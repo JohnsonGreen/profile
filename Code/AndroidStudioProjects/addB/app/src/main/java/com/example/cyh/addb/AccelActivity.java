@@ -1,5 +1,6 @@
 package com.example.cyh.addb;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,7 +29,7 @@ public class AccelActivity extends AppCompatActivity {
     private Handler liduHandler = new Handler(){
         public void handleMessage(Message msg) {
             if(msg.what == 0x3456){
-                acc_text.setText(String.valueOf(senorValue));
+                acc_text.setText("Level " + String.valueOf(senorValue) );
             }
         }
     };
@@ -50,26 +51,27 @@ public class AccelActivity extends AppCompatActivity {
         setContentView(R.layout.activity_accel);
 
         acc_text = (TextView)findViewById(R.id.acc_text);
-        acc_text.setText(String.valueOf(senorValue) + "g");
+        acc_text.setText("Level " + String.valueOf(senorValue));
         liduChart = (LiduChartView)findViewById(R.id.LiduChart);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    liduHandler.sendEmptyMessage(0x3456);
-                }
-            }
-        }).start();
+
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while(true){
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    liduHandler.sendEmptyMessage(0x3456);
+//                }
+//            }
+//        }).start();
 
 
         mqttListen = new mqttListen().mListen(topic,clientId);
-
         Handler handler = new Handler() {
             public void handleMessage(Message msg) {
                 if (msg.what == 1) {
@@ -91,16 +93,18 @@ public class AccelActivity extends AppCompatActivity {
                         }
 
                       if(data.size() >= MaxDataSize){
+                          System.out.println("MaxDataSize : " + MaxDataSize);
+                          System.out.println("data.size() : " + data.size());
                          data.remove(0);
                      }
                       data.add(senorValue);
+                      liduHandler.sendEmptyMessage(0x3456);
                       hand.sendEmptyMessage(0x1234);
                 }
 
             }
         };
         mqttListen.setHandler(handler);
-
 
 //        new Thread(new Runnable() {
 //            @Override
@@ -120,12 +124,8 @@ public class AccelActivity extends AppCompatActivity {
 //            }
 //        }).start();
 
-
-
-
-
-
-
     }
+
+
 
 }
